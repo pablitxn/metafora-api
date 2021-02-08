@@ -28,10 +28,6 @@ RETURNS TABLE(
 AS
 $$
 BEGIN
-  IF EXISTS(SELECT 1 FROM post p WHERE p.email = _email) THEN
-    RAISE EXCEPTION 'already exists' USING HINT = 'email', ERRCODE = '22000';
-	END IF;
-
   UPDATE post p
   SET
     title = _title,

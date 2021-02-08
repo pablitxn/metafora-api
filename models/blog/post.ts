@@ -2,10 +2,6 @@ import { db, pgp } from '../../loaders/pg-promise'
 import PostDB from '../../data/blog/post'
 import { IPost } from '../../types'
 
-// aca deberiamos usar una instancia de postDB pasada por un container de
-//  inj de dependencas
-//
-
 class PostModel {
 	private db: PostDB
 	constructor() {

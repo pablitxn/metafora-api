@@ -33,8 +33,8 @@ BEGIN
     a.is_draft,
     a.created_at
   FROM post a
-    WHERE (g.id = _id OR _id IS NULL)
-    AND (g.is_deleted = false OR _id IS NOT NULL);
+    WHERE (a.id = _id OR _id IS NULL)
+    AND (a.is_deleted = false OR _id IS NOT NULL);
 END;
 $$
 LANGUAGE 'plpgsql' STABLE;

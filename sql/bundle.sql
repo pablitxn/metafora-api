@@ -96,8 +96,8 @@ BEGIN
 
     _post_id := currval(pg_get_serial_sequence('post','id'));
 
-    RETURN QUERY SELECT * FROM fn_find_post( _post_id)
-    s LIMIT 1;
+    RETURN QUERY SELECT * FROM fn_find_post(_post_id)
+    LIMIT 1;
 END;
 $$
 LANGUAGE 'plpgsql' VOLATILE;
@@ -111,7 +111,7 @@ RETURNS TABLE(
   title character varying,
   author character varying
 )
-AS
+  AS
 $$
 BEGIN
   IF NOT EXISTS(SELECT 1 FROM post p WHERE p.id = _id) THEN
@@ -119,10 +119,8 @@ BEGIN
   END IF;
 
   UPDATE post p
-    SET    is_deleted = true
+  SET  is_deleted = true
   WHERE p.id = _id;
-
-  RETURN QUERY SELECT * FROM fn_find_post(_id) f LIMIT 1;
 END;
 $$
 LANGUAGE 'plpgsql' VOLATILE;
@@ -163,18 +161,53 @@ BEGIN
     a.is_draft,
     a.created_at
   FROM post a
-    WHERE (g.id = _id OR _id IS NULL)
-    AND (g.is_deleted = false OR _id IS NOT NULL);
+    WHERE (a.id = _id OR _id IS NULL)
+    AND (a.is_deleted = false OR _id IS NOT NULL);
 END;
 $$
 LANGUAGE 'plpgsql' STABLE;
 
 
 
-/*
-    Finds a product by user id + product name.
-*/
-SELECT * FROM post;
+SELECT fn_drop_func('fn_find_posts');
+
+CREATE OR REPLACE FUNCTION fn_find_post()
+RETURNS TABLE(
+  id integer,
+  title character varying,
+  sub_title character varying,
+  author character varying,
+  src_background character varying,
+  alt_background character varying,
+  img_author character varying,
+  brief_header character varying,
+  article character varying,
+  is_deleted boolean,
+  is_draft boolean,
+  created_at timestamp
+)
+AS
+$$
+BEGIN
+  RETURN QUERY
+  SELECT
+    a.id,
+    a.title,
+    a.sub_title,
+    a.author,
+    a.src_background,
+    a.alt_background,
+    a.img_author,
+    a.brief_header,
+    a.article,
+    a.is_deleted,
+    a.is_draft,
+    a.created_at
+  FROM post a
+    AND (g.is_deleted = false OR _id IS NOT NULL);
+END;
+$$
+LANGUAGE 'plpgsql' STABLE;
 
 
 
@@ -208,10 +241,6 @@ RETURNS TABLE(
 AS
 $$
 BEGIN
-  IF EXISTS(SELECT 1 FROM post p WHERE p.email = _email) THEN
-    RAISE EXCEPTION 'already exists' USING HINT = 'email', ERRCODE = '22000';
-	END IF;
-
   UPDATE post p
   SET
     title = _title,

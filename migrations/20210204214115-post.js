@@ -11,7 +11,7 @@ const columnSpec = {
 		primaryKey: true,
 		autoIncrement: true
 	},
-	title: { type: 'string', notNull: true, unique: true },
+	title: { type: 'string', notNull: true, unique: false },
 	sub_title: { type: 'string', notNull: true, unique: false },
 	author: { type: 'string', notNull: true, unique: false },
 	src_background: { type: 'string', notNull: true, unique: false },

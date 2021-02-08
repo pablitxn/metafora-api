@@ -6,7 +6,7 @@ RETURNS TABLE(
   title character varying,
   author character varying
 )
-AS
+  AS
 $$
 BEGIN
   IF NOT EXISTS(SELECT 1 FROM post p WHERE p.id = _id) THEN
@@ -14,10 +14,8 @@ BEGIN
   END IF;
 
   UPDATE post p
-    SET    is_deleted = true
+  SET  is_deleted = true
   WHERE p.id = _id;
-
-  RETURN QUERY SELECT * FROM fn_find_post(_id) f LIMIT 1;
 END;
 $$
 LANGUAGE 'plpgsql' VOLATILE;

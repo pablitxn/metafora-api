@@ -13,7 +13,7 @@ const PostRoute = (app: Router) => {
 	route.get('/post', async (req: Request, res: Response) => {
 		try {
 			const data = await PostService.getPosts()
-			res.status(200).json({ data, message: 'posts listed' })
+			res.status(200).json({ data })
 		} catch (err) {
 			console.log(err)
 			res.status(500).send(err)
@@ -23,10 +23,9 @@ const PostRoute = (app: Router) => {
 	/** GET BY ID  */
 	route.get('/post/:id', async (req: Request, res: Response) => {
 		try {
-			const payload = { id: req.params.id }
-			const data = await PostService.getPost(payload)
-			console.log('create success', data)
-			res.status(200).json({ data, message: 'post' })
+			const id = req.params.id
+			const data = await PostService.getPost(id)
+			res.status(200).json({ data })
 		} catch (err) {
 			res.status(500).send(err)
 		}
@@ -38,7 +37,7 @@ const PostRoute = (app: Router) => {
 			const payload = { body: req.body }
 			const data = await PostService.createPost(payload)
 
-			res.status(201).json({ data, message: 'post created' })
+			res.status(201).json({ data })
 		} catch (err) {
 			throw err
 		}
@@ -49,7 +48,7 @@ const PostRoute = (app: Router) => {
 		try {
 			const payload = { body: req.body, id: req.params.id }
 			const data = await PostService.editPost(payload)
-			res.status(201).json({ data, message: 'post edited' })
+			res.status(201).json({ data })
 		} catch (err) {
 			res.status(500).send(err)
 		}
@@ -58,8 +57,9 @@ const PostRoute = (app: Router) => {
 	/** REMOVE  */
 	route.delete('/post/:id', async (req: Request, res: Response) => {
 		try {
-			const data = await PostService.deletePost(req)
-			res.status(200).json({ data, message: 'post deleted' })
+			const id = req.params.id
+			const data = await PostService.deletePost(id)
+			res.status(200).json({ data })
 		} catch (err) {
 			res.status(500).send(err)
 		}

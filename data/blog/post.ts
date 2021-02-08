@@ -1,7 +1,13 @@
 import ModelDB from '../db-model'
-import sql from '../../sql'
 import { IPost } from '../../types'
 import { IDatabase, IMain } from 'pg-promise'
+
+/** TODO:
+ * 	- dependency injection
+ * 	- handle errors: messages and logger
+ * 	- improve queries
+ *	- more and better methods
+ */
 
 class PostDB extends ModelDB {
 	db: IDatabase<any>
@@ -12,14 +18,6 @@ class PostDB extends ModelDB {
 		this.pgp = pgp
 	}
 
-	/** TODO :
-	 *
-	 * 	metodos
-	 *  handle error code ??
-	 * 	conectar un logger
-	 *	quizas la db deberia venir por inj de dependencias
-	 *
-	 */
 	async create(post: IPost) {
 		const query = this.pgp.helpers.insert(post, null, 'post')
 		await this.db.none(query)
@@ -29,18 +27,21 @@ class PostDB extends ModelDB {
 
 	async update(id: string, post: IPost) {
 		try {
-			// const query = this.pgp.helpers.update(post, null, 'post')
-			// await this.db.none(query)
-			return { message: 'post updated', id }
+			const query = this.pgp.helpers.update(post, null, 'post')
+			await this.db.none(query)
+			const _query = `SELECT * FROM post WHERE id = ${id};`
+			const data = this.db.any(_query)
+			return data
 		} catch (err) {
 			console.log(err)
 			return err
 		}
 	}
 
-	delete(id: string) {
+	async delete(id: string) {
 		try {
-			// delete
+			await this.db.func('fn_delete_post', id)
+			return { id }
 		} catch (err) {
 			console.log(err)
 			return err
@@ -49,7 +50,8 @@ class PostDB extends ModelDB {
 
 	async getAll() {
 		try {
-			const data = await this.db.any(sql('blog', 'get-all'))
+			const query = `SELECT * FROM post WHERE is_deleted = false;`
+			const data = await this.db.any(query)
 			return data
 		} catch (err) {
 			console.log(err)
@@ -59,9 +61,9 @@ class PostDB extends ModelDB {
 
 	async findById(id: string) {
 		try {
-			// const query = this.pgp.helpers.update(post, null, 'post')
-			// await this.db.none(query)
-			// return { message: 'post updated', id: post.id }
+			const query = `SELECT * FROM post WHERE id = ${id};`
+			const [data] = await this.db.any(query, id)
+			return data
 		} catch (err) {
 			console.log(err)
 			return err

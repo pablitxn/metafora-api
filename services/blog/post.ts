@@ -35,7 +35,8 @@ class PostService {
 		}
 	}
 
-	static async editPost(id: string, payload: any) {
+	static async editPost(payload: any) {
+		const id = payload.id
 		const post = payload.body
 		PostService.validate(post)
 		try {
@@ -57,7 +58,6 @@ class PostService {
 		}
 	}
 
-	// TODO: este validate, es el serializer ?¡???
 	static validate(body: any) {
 		// pasa de camel case a guion bajo case
 	}

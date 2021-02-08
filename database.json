@@ -1,0 +1,12 @@
+{
+	"dev": {
+		"driver": "pg",
+		"user": "metafora",
+		"password": "metafora",
+		"database": "metafora",
+		"ssl": false,
+		"host": "0.0.0.0",
+		"schema": "public",
+		"port": 5432
+	}
+}

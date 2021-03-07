@@ -15,14 +15,8 @@ CREATE OR REPLACE FUNCTION fn_update_post(
 RETURNS TABLE(
   id integer,
   title character varying,
-  sub_title character varying,
   author character varying,
-  src_background character varying,
-  alt_background character varying,
-  img_author character varying,
-  brief_header character varying,
-  article character varying,
-  is_draft boolean,
+  updated_at timestamp,
   created_at timestamp
 )
 AS
@@ -38,12 +32,17 @@ BEGIN
     img_author = _img_author,
     brief_header = _brief_header,
     article = _article,
-    is_draft = _is_draft
-
+    is_draft = _is_draft,
+    updated_at = current_timestamp
     WHERE p.id = _id;
 
-    RETURN QUERY SELECT * FROM fn_find_program(_id)
-    p LIMIT 1;
+    RETURN QUERY SELECT
+      p.id,
+      p.title,
+      p.author,
+      p.updated_at,
+      p.created_at
+    FROM post p WHERE p.id = _id;
 END;
 $$
 LANGUAGE 'plpgsql' VOLATILE;

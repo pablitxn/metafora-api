@@ -2,52 +2,62 @@ import { db, pgp } from '../../loaders/pg-promise'
 import PostDB from '../../data/blog/post'
 import { IPost } from '../../types'
 
+type Limit = number | null
+type Offset = number | null
+
 class PostModel {
-	private db: PostDB
+	private database: PostDB
 	constructor() {
+		// crear un modelo mas power
 		// aca pasariamos Container(PostDB)
-		this.db = new PostDB(db, pgp)
+		this.database = new PostDB(db, pgp)
+		// super(fieldSpec, fields)
 	}
 
-	public async getPosts(): Promise<any> {
+	public factory(record: any) {
+		const post = this.factory(record)
+		return post
+	}
+
+	public async index(limit: Limit, offset: Offset) {
 		try {
-			const data = await this.db.getAll()
+			const data = await this.database.index(limit, offset)
 			return data
 		} catch (err) {
 			return err
 		}
 	}
 
-	public async getPost(id: string): Promise<any> {
+	public async findById(id: number) {
 		try {
-			const data = await this.db.findById(id)
+			const data = await this.database.findById(id)
 			return data
 		} catch (err) {
 			return err
 		}
 	}
 
-	public async createPost(post: IPost) {
+	public async create(post: IPost) {
 		try {
-			const data = await this.db.create(post)
+			const data = await this.database.create(post)
 			return data
 		} catch (err) {
 			return err
 		}
 	}
 
-	public async editPost(id: string, post: IPost) {
+	public async edit(id: number, post: IPost) {
 		try {
-			const data = await this.db.update(id, post)
+			const data = await this.database.update(id, post)
 			return data
 		} catch (err) {
 			return err
 		}
 	}
 
-	public async deletePost(id: string) {
+	public async delete(id: number) {
 		try {
-			const data = await this.db.delete(id)
+			const data = await this.database.delete(id)
 			return data
 		} catch (err) {
 			return err

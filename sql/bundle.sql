@@ -22,6 +22,95 @@ END
 $func$ LANGUAGE plpgsql;
 
 
+SELECT fn_drop_func('fn_delete_post');
+
+CREATE OR REPLACE FUNCTION fn_delete_post(_id integer)
+RETURNS TABLE(
+  id integer,
+  title character varying,
+  author character varying
+)
+  AS
+$$
+BEGIN
+  IF NOT EXISTS(SELECT 1 FROM post p WHERE p.id = _id) THEN
+    RAISE EXCEPTION 'is invalid' USING HINT = 'id', ERRCODE = '22000';
+  END IF;
+
+  UPDATE post p
+  SET  is_deleted = true
+  WHERE p.id = _id;
+
+  RETURN QUERY SELECT * FROM fn_find_post(_id);
+END;
+$$
+LANGUAGE 'plpgsql' VOLATILE;
+
+
+SELECT fn_drop_func('fn_find_post');
+
+CREATE OR REPLACE FUNCTION fn_find_post(
+  _id integer,
+  _limit integer default NULL,
+  _offset integer default NULL
+)
+RETURNS TABLE(
+  id integer,
+  title character varying,
+  sub_title character varying,
+  author character varying,
+  src_background character varying,
+  alt_background character varying,
+  img_author character varying,
+  brief_header character varying,
+  article character varying,
+  is_deleted boolean,
+  is_draft boolean,
+  updated_at timestamp,
+  created_at timestamp
+)
+AS
+$$
+BEGIN
+  IF _offset IS NULL THEN
+  _offset := 0;
+  END IF;
+
+  IF _id IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM post p
+    WHERE p.id = _id
+    AND p.is_deleted = false
+    ) THEN
+    RAISE EXCEPTION 'is invalid' USING HINT = 'id', ERRCODE = '22000';
+  END IF;
+
+  RETURN QUERY
+  SELECT
+    p.id,
+    p.title,
+    p.sub_title,
+    p.author,
+    p.src_background,
+    p.alt_background,
+    p.img_author,
+    p.brief_header,
+    p.article,
+    p.is_deleted,
+    p.is_draft,
+    p.updated_at,
+    p.created_at
+  FROM post p
+    WHERE (p.id = _id OR _id IS NULL)
+    AND (p.is_deleted = false OR _id IS NOT NULL)
+  ORDER BY p.id ASC
+  LIMIT _limit
+  OFFSET _offset;
+END;
+$$
+LANGUAGE 'plpgsql' STABLE;
+
+
+
 SELECT fn_drop_func('fn_insert_post');
 
 CREATE OR REPLACE FUNCTION fn_insert_post(
@@ -51,7 +140,7 @@ RETURNS TABLE(
 AS
 $$
 DECLARE
-    _post_id integer;
+    _id integer;
 BEGIN
     IF EXISTS(SELECT 1 FROM post a WHERE a.title = _title AND a.is_deleted = false) THEN
         RAISE EXCEPTION 'already exists' USING HINT = 'title', ERRCODE = '22000';
@@ -94,121 +183,13 @@ BEGIN
       current_timestamp
     );
 
-    _post_id := currval(pg_get_serial_sequence('post','id'));
+    _id := currval(pg_get_serial_sequence('post','id'));
 
-    RETURN QUERY SELECT * FROM fn_find_post(_post_id)
+    RETURN QUERY SELECT * FROM fn_find_post(_id)
     LIMIT 1;
 END;
 $$
 LANGUAGE 'plpgsql' VOLATILE;
-
-
-SELECT fn_drop_func('fn_delete_post');
-
-CREATE OR REPLACE FUNCTION fn_delete_post(_id integer)
-RETURNS TABLE(
-  id integer,
-  title character varying,
-  author character varying
-)
-  AS
-$$
-BEGIN
-  IF NOT EXISTS(SELECT 1 FROM post p WHERE p.id = _id) THEN
-    RAISE EXCEPTION 'is invalid' USING HINT = 'id', ERRCODE = '22000';
-  END IF;
-
-  UPDATE post p
-  SET  is_deleted = true
-  WHERE p.id = _id;
-END;
-$$
-LANGUAGE 'plpgsql' VOLATILE;
-
-
-SELECT fn_drop_func('fn_find_post');
-
-CREATE OR REPLACE FUNCTION fn_find_post(_id integer)
-RETURNS TABLE(
-  id integer,
-  title character varying,
-  sub_title character varying,
-  author character varying,
-  src_background character varying,
-  alt_background character varying,
-  img_author character varying,
-  brief_header character varying,
-  article character varying,
-  is_deleted boolean,
-  is_draft boolean,
-  created_at timestamp
-)
-AS
-$$
-BEGIN
-  RETURN QUERY
-  SELECT
-    a.id,
-    a.title,
-    a.sub_title,
-    a.author,
-    a.src_background,
-    a.alt_background,
-    a.img_author,
-    a.brief_header,
-    a.article,
-    a.is_deleted,
-    a.is_draft,
-    a.created_at
-  FROM post a
-    WHERE (a.id = _id OR _id IS NULL)
-    AND (a.is_deleted = false OR _id IS NOT NULL);
-END;
-$$
-LANGUAGE 'plpgsql' STABLE;
-
-
-
-SELECT fn_drop_func('fn_find_posts');
-
-CREATE OR REPLACE FUNCTION fn_find_post()
-RETURNS TABLE(
-  id integer,
-  title character varying,
-  sub_title character varying,
-  author character varying,
-  src_background character varying,
-  alt_background character varying,
-  img_author character varying,
-  brief_header character varying,
-  article character varying,
-  is_deleted boolean,
-  is_draft boolean,
-  created_at timestamp
-)
-AS
-$$
-BEGIN
-  RETURN QUERY
-  SELECT
-    a.id,
-    a.title,
-    a.sub_title,
-    a.author,
-    a.src_background,
-    a.alt_background,
-    a.img_author,
-    a.brief_header,
-    a.article,
-    a.is_deleted,
-    a.is_draft,
-    a.created_at
-  FROM post a
-    AND (g.is_deleted = false OR _id IS NOT NULL);
-END;
-$$
-LANGUAGE 'plpgsql' STABLE;
-
 
 
 SELECT fn_drop_func('fn_update_post');
@@ -235,7 +216,9 @@ RETURNS TABLE(
   img_author character varying,
   brief_header character varying,
   article character varying,
+  is_deleted boolean,
   is_draft boolean,
+  updated_at timestamp,
   created_at timestamp
 )
 AS
@@ -251,14 +234,16 @@ BEGIN
     img_author = _img_author,
     brief_header = _brief_header,
     article = _article,
-    is_draft = _is_draft
+    is_draft = _is_draft,
+    updated_at = current_timestamp
 
     WHERE p.id = _id;
 
-    RETURN QUERY SELECT * FROM fn_find_program(_id)
-    p LIMIT 1;
+    RETURN QUERY SELECT * FROM fn_find_post(_id);
 END;
 $$
 LANGUAGE 'plpgsql' VOLATILE;
+
+
 
 

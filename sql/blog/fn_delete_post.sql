@@ -16,6 +16,12 @@ BEGIN
   UPDATE post p
   SET  is_deleted = true
   WHERE p.id = _id;
+
+    RETURN QUERY SELECT
+      p.id,
+      p.title,
+      p.author
+    FROM post p WHERE p.id = _id;
 END;
 $$
 LANGUAGE 'plpgsql' VOLATILE;

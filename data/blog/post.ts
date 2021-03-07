@@ -5,9 +5,10 @@ import { IDatabase, IMain } from 'pg-promise'
 /** TODO:
  * 	- dependency injection
  * 	- handle errors: messages and logger
- * 	- improve queries
- *	- more and better methods
  */
+
+type Limit = number | null
+type Offset = number | null
 
 class PostDB extends ModelDB {
 	db: IDatabase<any>
@@ -19,51 +20,48 @@ class PostDB extends ModelDB {
 	}
 
 	async create(post: IPost) {
-		const query = this.pgp.helpers.insert(post, null, 'post')
-		await this.db.none(query)
-		const _query = 'SELECT id, title FROM post ORDER BY id DESC LIMIT 1;'
-		return await this.db.one(_query)
+		try {
+			const record = await this.db.func('fn_insert_post', post)
+			return record
+		} catch (err) {
+			console.log(err)
+		}
 	}
 
-	async update(id: string, post: IPost) {
+	async update(id: number, post: IPost) {
 		try {
-			const query = this.pgp.helpers.update(post, null, 'post')
-			await this.db.none(query)
-			const _query = `SELECT * FROM post WHERE id = ${id};`
-			const data = this.db.any(_query)
-			return data
+			const record = await this.db.func('fn_update_post', [id, post])
+			return record
 		} catch (err) {
 			console.log(err)
 			return err
 		}
 	}
 
-	async delete(id: string) {
+	async delete(id: number) {
 		try {
-			await this.db.func('fn_delete_post', id)
-			return { id }
+			const record = await this.db.func('fn_delete_post', id)
+			return record
 		} catch (err) {
 			console.log(err)
 			return err
 		}
 	}
 
-	async getAll() {
+	async index(limit: Limit, offset: Offset) {
 		try {
-			const query = `SELECT * FROM post WHERE is_deleted = false;`
-			const data = await this.db.any(query)
-			return data
+			const record = await this.db.func('fn_find_post', [null, limit, offset])
+			return record
 		} catch (err) {
 			console.log(err)
 			return err
 		}
 	}
 
-	async findById(id: string) {
+	async findById(id: number) {
 		try {
-			const query = `SELECT * FROM post WHERE id = ${id};`
-			const [data] = await this.db.any(query, id)
-			return data
+			const record = await this.db.func('fn_find_post', id)
+			return record
 		} catch (err) {
 			console.log(err)
 			return err

@@ -1,11 +1,14 @@
 import PostModel from '../../models/blog/post'
-import { IPost } from '../../types'
+// import { IPost } from '../../types'
+
+type Limit = number | null
+type Offset = number | null
 
 class PostService {
-	static async getPosts(): Promise<any> {
+	static async index(limit: Limit, offset: Offset) {
+		const model = new PostModel()
 		try {
-			const model = new PostModel()
-			const response = await model.getPosts()
+			const response = await model.index(limit, offset)
 			return response
 		} catch (err) {
 			console.log('err service', err)
@@ -13,57 +16,47 @@ class PostService {
 		}
 	}
 
-	static async createPost(payload: any) {
-		const post = payload.body
-		PostService.validate(post)
+	static async create(payload: any) {
+		const model = new PostModel()
+		// const post = model.validate(payload)
 		try {
-			const model = new PostModel()
-			const response = model.createPost(post)
+			const record = model.create(payload)
+			const response = model.factory(record)
 			return response
 		} catch (err) {
 			return err
 		}
 	}
 
-	static async getPost(id: string) {
+	static async findById(id: number) {
+		const model = new PostModel()
 		try {
-			const model = new PostModel()
-			const response = model.getPost(id)
+			const response = model.findById(id)
 			return response
 		} catch (err) {
 			return err
 		}
 	}
 
-	static async editPost(payload: any) {
-		const id = payload.id
-		const post = payload.body
-		PostService.validate(post)
+	static async edit(id: number, payload: any) {
+		const model = new PostModel()
+		// const post = model.validate(payload)
 		try {
-			const model = new PostModel()
-			const response = model.editPost(id, post)
+			const response = model.edit(id, payload)
 			return response
 		} catch (err) {
 			return err
 		}
 	}
 
-	static async deletePost(id: string) {
+	static async delete(id: number) {
+		const model = new PostModel()
 		try {
-			const model = new PostModel()
-			const response = model.deletePost(id)
+			const response = model.delete(id)
 			return response
 		} catch (err) {
 			return err
 		}
-	}
-
-	static validate(body: any) {
-		// pasa de camel case a guion bajo case
-	}
-
-	static factory(post: IPost) {
-		// transpila los guines bajos
 	}
 }
 

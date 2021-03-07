@@ -27,7 +27,7 @@ RETURNS TABLE(
 AS
 $$
 DECLARE
-    _post_id integer;
+    _id integer;
 BEGIN
     IF EXISTS(SELECT 1 FROM post a WHERE a.title = _title AND a.is_deleted = false) THEN
         RAISE EXCEPTION 'already exists' USING HINT = 'title', ERRCODE = '22000';
@@ -70,9 +70,9 @@ BEGIN
       current_timestamp
     );
 
-    _post_id := currval(pg_get_serial_sequence('post','id'));
+    _id := currval(pg_get_serial_sequence('post','id'));
 
-    RETURN QUERY SELECT * FROM fn_find_post(_post_id)
+    RETURN QUERY SELECT * FROM fn_find_post(_id)
     LIMIT 1;
 END;
 $$

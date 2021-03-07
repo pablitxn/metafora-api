@@ -14,8 +14,9 @@
 		"outDir": "./build",
 		"allowJs": true,
 		"noEmit": false,
-		"esModuleInterop": true
+		"esModuleInterop": true,
+		"baseUrl": "./"
 	},
-	"include": ["./**/*", "migrations"],
-	"exclude": ["node_modules", "tests"]
+	"include": ["./**/*"],
+	"exclude": ["node_modules"]
 }

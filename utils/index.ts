@@ -1,7 +1,9 @@
 type Limit = number | null
 type Offset = number | null
 
-export const getPaginationParams = (query: any) => {
+export const requestHelper = (req: any) => {
+	const { query, params } = req
+
 	let limit: Limit
 	let offset: Offset
 	if (query.offset === undefined) offset = null
@@ -14,8 +16,13 @@ export const getPaginationParams = (query: any) => {
 		limit = parseInt(query.limit)
 	}
 
+	const id = parseInt(req.params.id)
+	const payload = req.body
+
 	return {
 		limit,
-		offset
+		offset,
+		id,
+		payload
 	}
 }

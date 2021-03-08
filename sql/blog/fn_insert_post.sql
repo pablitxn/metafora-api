@@ -21,7 +21,9 @@ RETURNS TABLE(
   img_author character varying,
   brief_header character varying,
   article character varying,
+  is_deleted boolean,
   is_draft boolean,
+  updated_at timestamp,
   created_at timestamp
 )
 AS
@@ -77,3 +79,4 @@ BEGIN
 END;
 $$
 LANGUAGE 'plpgsql' VOLATILE;
+

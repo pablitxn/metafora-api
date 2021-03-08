@@ -24,16 +24,15 @@ class PostDB extends ModelDB {
 			const record = await this.db.func('fn_insert_post', post)
 			return record
 		} catch (err) {
-			console.log(err)
+			return err
 		}
 	}
 
 	async update(id: number, post: IPost) {
 		try {
-			const record = await this.db.func('fn_update_post', [id, post])
+			const record = await this.db.func('fn_update_post', { id, ...post })
 			return record
 		} catch (err) {
-			console.log(err)
 			return err
 		}
 	}
@@ -43,7 +42,6 @@ class PostDB extends ModelDB {
 			const record = await this.db.func('fn_delete_post', id)
 			return record
 		} catch (err) {
-			console.log(err)
 			return err
 		}
 	}
@@ -53,7 +51,6 @@ class PostDB extends ModelDB {
 			const record = await this.db.func('fn_find_post', [null, limit, offset])
 			return record
 		} catch (err) {
-			console.log(err)
 			return err
 		}
 	}
@@ -63,7 +60,6 @@ class PostDB extends ModelDB {
 			const record = await this.db.func('fn_find_post', id)
 			return record
 		} catch (err) {
-			console.log(err)
 			return err
 		}
 	}

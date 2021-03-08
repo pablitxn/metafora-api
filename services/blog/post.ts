@@ -1,27 +1,23 @@
 import PostModel from '../../models/blog/post'
-// import { IPost } from '../../types'
 
 type Limit = number | null
 type Offset = number | null
 
 class PostService {
 	static async index(limit: Limit, offset: Offset) {
-		const model = new PostModel()
 		try {
-			const response = await model.index(limit, offset)
+			const response = await PostModel.index(limit, offset)
 			return response
 		} catch (err) {
-			console.log('err service', err)
 			return err
 		}
 	}
 
 	static async create(payload: any) {
-		const model = new PostModel()
-		// const post = model.validate(payload)
 		try {
-			const record = model.create(payload)
-			const response = model.factory(record)
+			const post = PostModel.deshydrate(payload)
+			const [record] = await PostModel.create(post)
+			const response = PostModel.hydrate(record)
 			return response
 		} catch (err) {
 			return err
@@ -29,9 +25,9 @@ class PostService {
 	}
 
 	static async findById(id: number) {
-		const model = new PostModel()
 		try {
-			const response = model.findById(id)
+			const [record] = await PostModel.findById(id)
+			const response = PostModel.hydrate(record)
 			return response
 		} catch (err) {
 			return err
@@ -39,10 +35,10 @@ class PostService {
 	}
 
 	static async edit(id: number, payload: any) {
-		const model = new PostModel()
-		// const post = model.validate(payload)
 		try {
-			const response = model.edit(id, payload)
+			const post = PostModel.deshydrate(payload)
+			const [record] = await PostModel.edit(id, post)
+			const response = PostModel.hydrate(record)
 			return response
 		} catch (err) {
 			return err
@@ -50,9 +46,9 @@ class PostService {
 	}
 
 	static async delete(id: number) {
-		const model = new PostModel()
 		try {
-			const response = model.delete(id)
+			const [record] = await PostModel.delete(id)
+			const response = PostModel.hydrate(record)
 			return response
 		} catch (err) {
 			return err

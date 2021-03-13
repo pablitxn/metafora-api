@@ -1,3 +1,14 @@
-// import jwt from 'jsonwebtoken'
+import AuthModel from '../../models/admin/auth'
 
-export default class AuthService {}
+class Auth {
+	static async login(payload: any) {
+		try {
+			const [record] = await AuthModel.login(payload)
+			// return response
+		} catch (err) {
+			return err
+		}
+	}
+}
+
+export default Auth

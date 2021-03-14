@@ -41,10 +41,15 @@ BEGIN
   SET  is_deleted = true
   WHERE p.id = _id;
 
-  RETURN QUERY SELECT * FROM fn_find_post(_id);
+    RETURN QUERY SELECT
+      p.id,
+      p.title,
+      p.author
+    FROM post p WHERE p.id = _id;
 END;
 $$
 LANGUAGE 'plpgsql' VOLATILE;
+
 
 
 SELECT fn_drop_func('fn_find_post');
@@ -134,7 +139,9 @@ RETURNS TABLE(
   img_author character varying,
   brief_header character varying,
   article character varying,
+  is_deleted boolean,
   is_draft boolean,
+  updated_at timestamp,
   created_at timestamp
 )
 AS
@@ -192,6 +199,8 @@ $$
 LANGUAGE 'plpgsql' VOLATILE;
 
 
+
+
 SELECT fn_drop_func('fn_update_post');
 
 CREATE OR REPLACE FUNCTION fn_update_post(
@@ -209,15 +218,7 @@ CREATE OR REPLACE FUNCTION fn_update_post(
 RETURNS TABLE(
   id integer,
   title character varying,
-  sub_title character varying,
   author character varying,
-  src_background character varying,
-  alt_background character varying,
-  img_author character varying,
-  brief_header character varying,
-  article character varying,
-  is_deleted boolean,
-  is_draft boolean,
   updated_at timestamp,
   created_at timestamp
 )
@@ -236,13 +237,151 @@ BEGIN
     article = _article,
     is_draft = _is_draft,
     updated_at = current_timestamp
-
     WHERE p.id = _id;
 
-    RETURN QUERY SELECT * FROM fn_find_post(_id);
+    RETURN QUERY SELECT
+      p.id,
+      p.title,
+      p.author,
+      p.updated_at,
+      p.created_at
+    FROM post p WHERE p.id = _id;
 END;
 $$
 LANGUAGE 'plpgsql' VOLATILE;
+
+
+
+SELECT fn_drop_func('fn_insert_user');
+
+CREATE OR REPLACE FUNCTION fn_insert_user(
+  _given_name character varying,
+  _family_name character varying,
+  _name character varying,
+  _nickname character varying,
+  _brief_description character varying,
+  _email character varying,
+  _firm character varying,
+  _picture character varying
+)
+RETURNS TABLE (
+  id integer,
+  given_name character varying,
+  family_name character varying,
+  name character varying,
+  nickname character varying,
+  brief_description character varying,
+  email character varying,
+  firm character varying,
+  picture character varying,
+  is_deleted boolean,
+  updated_at timestamp,
+  created_at timestamp
+)
+AS
+$$
+DECLARE
+    _id integer;
+BEGIN
+    IF EXISTS(SELECT 1 FROM user u WHERE u.email = _email) THEN
+        RAISE EXCEPTION 'already exists' USING HINT = 'email', ERRCODE = '22000';
+    END IF;
+
+
+    INSERT INTO user (
+      given_name,
+      family_name,
+      name,
+      nickname,
+      brief_description,
+      email,
+      firm,
+      picture,
+      updated_at,
+      created_at
+    )
+    VALUES (
+      _given_name,
+      _family_name,
+      _name,
+      _nickname,
+      _brief_description,
+      _email,
+      _firm,
+      _picture,
+      current_timestamp,
+      current_timestamp
+    );
+
+    _id := currval(pg_get_serial_sequence('user','id'));
+
+    RETURN QUERY SELECT * FROM fn_find_user(_id)
+    LIMIT 1;
+END;
+$$
+LANGUAGE 'plpgsql' VOLATILE;
+
+
+
+SELECT fn_drop_func('fn_find_user');
+
+CREATE OR REPLACE FUNCTION fn_find_user(
+  _id integer,
+  _limit integer,
+  _offset integer default NULL
+)
+RETURNS TABLE(
+  id integer,
+  given_name character varying,
+  family_name character varying,
+  name character varying,
+  nickname character varying,
+  brief_description character varying,
+  email character varying,
+  firm character varying,
+  picture character varying,
+  is_deleted character varying,
+  updated_at timestamp,
+  created_at timestamp
+)
+AS
+$$
+BEGIN
+  IF _offset IS NULL THEN
+  _offset := 0;
+  END IF;
+
+  IF _id IS NOT NULL AND NOT EXISTS
+  (
+    SELECT 1 FROM user u
+      WHERE p.id = _id AND p.is_deleted = false
+  ) THEN RAISE EXCEPTION 'is invalid' USING HINT = 'id', ERRCODE = '22000';
+  END IF;
+
+  RETURN QUERY
+  SELECT
+    p.id,
+    p.title,
+    p.sub_title,
+    p.author,
+    p.src_background,
+    p.alt_background,
+    p.img_author,
+    p.brief_header,
+    p.article,
+    p.is_deleted,
+    p.is_draft,
+    p.updated_at,
+    p.created_at
+  FROM user u
+    WHERE (u.id = _id OR _id IS NULL)
+    AND (u.is_deleted = false OR _id IS NOT NULL)
+  ORDER BY u.id ASC
+  LIMIT _limit
+  OFFSET _offset;
+END;
+$$
+LANGUAGE 'plpgsql' STABLE;
 
 
 

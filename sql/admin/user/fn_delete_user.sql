@@ -1,27 +1,27 @@
-SELECT fn_drop_func('fn_delete_post');
+SELECT fn_drop_func('fn_delete_user');
 
-CREATE OR REPLACE FUNCTION fn_delete_post(_id integer)
+CREATE OR REPLACE FUNCTION fn_delete_user(_id integer)
 RETURNS TABLE(
   id integer,
-  title character varying,
-  author character varying
+  name character varying,
+  email character varying
 )
   AS
 $$
 BEGIN
-  IF NOT EXISTS(SELECT 1 FROM post p WHERE p.id = _id) THEN
+  IF NOT EXISTS(SELECT 1 FROM user_ u WHERE u.id = _id) THEN
     RAISE EXCEPTION 'is invalid' USING HINT = 'id', ERRCODE = '22000';
   END IF;
 
-  UPDATE post p
+  UPDATE user_ u
   SET  is_deleted = true
-  WHERE p.id = _id;
+  WHERE u.id = _id;
 
     RETURN QUERY SELECT
-      p.id,
-      p.title,
-      p.author
-    FROM post p WHERE p.id = _id;
+      u.id,
+      u.name,
+      u.email
+    FROM user_ u WHERE u.id = _id;
 END;
 $$
 LANGUAGE 'plpgsql' VOLATILE;

@@ -12,5 +12,5 @@ exports.up = PromiseDB.run(tableName, null, (pdb) => {
 })
 
 exports.down = PromiseDB.run(tableName, null, (pdb) => {
-	return pdb.removeColumn('tutoring_group_student_id')
+	return pdb.removeColumn('updated_at')
 })

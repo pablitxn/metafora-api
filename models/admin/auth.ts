@@ -1,31 +1,58 @@
 import { db, pgp } from '../../loaders/pg-promise'
-// import AuthDB from '../../data/admin/auth'
-// import UserDB from '../../data/admin/user'
+import UserDB from '../../data/admin/user'
 import Model from '../model'
 
 type Limit = number | null
 type Offset = number | null
 
-class PostModel {
-	constructor() {
-		// crear un modelo mas power
-		// aca pasariamos Container(PostDB)
-		// super(fieldSpec, fields)
-	}
+class Auth {
+	constructor() {}
 
-	static async login(post: any) {
+	static async create(post: any) {
 		try {
-			// const database = new PostDB(db, pgp)
-			// const record = await database.create(post)
-			// return record
+			const database = new UserDB(db, pgp)
+			const record = await database.create(post)
+			return record
 		} catch (err) {
 			return err
 		}
 	}
 
-	static validate(fields: any) {
-		// validacion de campos
+	static async update(post: any) {
+		try {
+			const database = new UserDB(db, pgp)
+			const record = await database.update(post)
+			return record
+		} catch (err) {
+			return err
+		}
+	}
+
+	static async validate(payload: any) {
+		try {
+			const database = new UserDB(db, pgp)
+			const record = await database.find(payload)
+			return record
+		} catch (err) {
+			return err
+		}
+	}
+
+	static hydrate(payload: any) {
+		try {
+			return payload
+		} catch (err) {
+			return err
+		}
+	}
+
+	static deshydrate(payload: any) {
+		try {
+			return payload
+		} catch (err) {
+			return err
+		}
 	}
 }
 
-export default PostModel
+export default Auth

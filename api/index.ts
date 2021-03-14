@@ -4,7 +4,8 @@ import auth from './routes/admin/auth'
 
 export default () => {
 	const app = Router()
-	auth(app)
 	post(app)
+	// pages with auth
+	auth(app)
 	return app
 }

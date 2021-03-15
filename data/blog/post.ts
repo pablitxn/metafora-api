@@ -1,5 +1,5 @@
 import ModelDB from '../db-model'
-import { IPost } from '../../types'
+import { IPost } from '../../interfaces/blog/post'
 import { IDatabase, IMain } from 'pg-promise'
 
 /** TODO:

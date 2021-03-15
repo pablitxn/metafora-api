@@ -6,6 +6,7 @@ import { auth, requiresAuth } from 'express-openid-connect'
 import { requestHelper } from '../../../utils'
 import dotenv from 'dotenv'
 dotenv.config()
+import axios, { AxiosRequestConfig } from 'axios'
 
 const route = Router()
 
@@ -20,11 +21,22 @@ const config = {
 
 const Auth = (app: Router) => {
 	app.use('/admin', route)
+
+	route.post('/test_token', async (req: Request, res: Response) => {
+		const { body } = requestHelper(req)
+		try {
+			const { data } = await axios(body)
+			res.status(200).send(data)
+		} catch (err) {
+			res.status(401).send(err)
+		}
+	})
+
 	app.use(auth(config))
 	app.use(requiresAuth())
 	// app.use(checkPermissions)
 
-	route.get('/update-profile', async (req: any, res: Response) => {
+	route.get('/sync-profile', async (req: any, res: Response) => {
 		try {
 			const { user } = req.oidc
 			const response = await AuthService.syncUser(user)
@@ -32,14 +44,6 @@ const Auth = (app: Router) => {
 		} catch (err) {
 			return err
 		}
-	})
-
-	route.post('/', async (req: Request, res: Response) => {
-		// try {
-		// 	res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out')
-		// } catch (err) {
-		// 	throw err
-		// }
 	})
 }
 

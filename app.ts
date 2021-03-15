@@ -8,13 +8,15 @@ async function startServer() {
 
 	await require('./loaders').default({ app })
 
-	app.listen(config.port, () => {
+	const server = app.listen(config.port, () => {
 		Logger.info(`
       ################################################
       🛡️  Server listening on port: ${config.port} 🛡️
       ################################################
     `)
 	})
+
+	return { server, app }
 }
 
-startServer()
+export default startServer()

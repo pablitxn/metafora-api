@@ -1,6 +1,6 @@
 import { db, pgp } from '../../loaders/pg-promise'
 import PostDB from '../../data/blog/post'
-import { IPost, fieldSpec } from '../../types'
+import { IPost, fieldSpec } from '../../interfaces/blog/post'
 import Model from '../model'
 
 type Limit = number | null

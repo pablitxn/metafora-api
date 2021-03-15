@@ -8,5 +8,15 @@
 		"host": "0.0.0.0",
 		"schema": "public",
 		"port": 5432
+	},
+	"test": {
+		"driver": "pg",
+		"user": "metafora",
+		"password": "metafora",
+		"database": "metafora_test",
+		"ssl": false,
+		"host": "localhost",
+		"schema": "public",
+		"port": 5432
 	}
 }

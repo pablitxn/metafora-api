@@ -18,25 +18,25 @@ class Auth {
 		}
 	}
 
-	static async update(post: any) {
-		try {
-			const database = new UserDB(db, pgp)
-			const record = await database.update(post)
-			return record
-		} catch (err) {
-			return err
-		}
-	}
+	// static async update(post: any) {
+	// 	try {
+	// 		const database = new UserDB(db, pgp)
+	// 		const record = await database.update(post)
+	// 		return record
+	// 	} catch (err) {
+	// 		return err
+	// 	}
+	// }
 
-	static async validate(payload: any) {
-		try {
-			const database = new UserDB(db, pgp)
-			const record = await database.find(payload)
-			return record
-		} catch (err) {
-			return err
-		}
-	}
+	// static async validate(payload: any) {
+	// 	try {
+	// 		const database = new UserDB(db, pgp)
+	// 		const record = await database.find(payload)
+	// 		return record
+	// 	} catch (err) {
+	// 		return err
+	// 	}
+	// }
 
 	static hydrate(payload: any) {
 		try {

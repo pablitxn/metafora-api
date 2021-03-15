@@ -11,8 +11,8 @@ const route = Router()
 const PostRoute = (app: Router) => {
 	app.use('/blog', route)
 
-	route.get('/post', async (req: Request, res: Response) => {
-		const { limit, offset } = requestHelper(req.query)
+	route.get('/posts', async (req: Request, res: Response) => {
+		const { limit, offset } = requestHelper(req)
 		try {
 			const data = await PostService.index(limit, offset)
 			res.status(200).json({ data })
@@ -22,7 +22,7 @@ const PostRoute = (app: Router) => {
 		}
 	})
 
-	route.get('/post/:id', async (req: Request, res: Response) => {
+	route.get('/posts/:id', async (req: Request, res: Response) => {
 		try {
 			const { id } = requestHelper(req)
 			const data = await PostService.findById(id)
@@ -32,7 +32,7 @@ const PostRoute = (app: Router) => {
 		}
 	})
 
-	route.post('/post', async (req: Request, res: Response) => {
+	route.post('/posts', async (req: Request, res: Response) => {
 		try {
 			const { payload } = requestHelper(req)
 			const data = await PostService.create(payload)
@@ -43,7 +43,7 @@ const PostRoute = (app: Router) => {
 		}
 	})
 
-	route.put('/post/:id', async (req: Request, res: Response) => {
+	route.put('/posts/:id', async (req: Request, res: Response) => {
 		try {
 			const { id, payload } = requestHelper(req)
 			const data = await PostService.edit(id, payload)
@@ -53,7 +53,7 @@ const PostRoute = (app: Router) => {
 		}
 	})
 
-	route.delete('/post/:id', async (req: Request, res: Response) => {
+	route.delete('/posts/:id', async (req: Request, res: Response) => {
 		try {
 			const id = parseInt(req.params.id)
 			const data = await PostService.delete(id)

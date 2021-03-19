@@ -58,8 +58,14 @@ class Fixture {
 		return result
 	}
 
-	static async resetter(table) {
-		await db.one(`DELETE FROM ${table};`)
+	static resetter(table) {
+		return () =>
+			new Promise((res, rej) => {
+				const _res = db.none(`DELETE FROM ${table};`)
+				res(_res)
+				if (rej) throw rej
+				else res(result)
+			})
 	}
 
 	static createAller(fixtures) {

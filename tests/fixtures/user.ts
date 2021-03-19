@@ -1,4 +1,3 @@
-// @ts-nocheck
 import Fixture from './fixture-model'
 
 const Admin = {
@@ -40,6 +39,6 @@ const User2 = {
 	created_at: new Date()
 }
 
-const Users = Fixture.register('user_', { Admin, User1, User2 })
+const Users: any = Fixture.register('user_', { Admin, User1, User2 })
 
 export default Users

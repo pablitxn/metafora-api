@@ -38,11 +38,15 @@ describe('Authentication', () => {
 	let user
 	let authz
 
-	// beforeEach(async () => {
-	// 	await Fixtures.resetAll()
-	// 	await Fixtures.createAll()
-	// 	// user = await Fixtures.User.Admin.instance
-	// })
+	beforeAll(async () => {
+		await Fixtures.resetAll()
+		await Fixtures.createAll()
+		// user = await Fixtures.User.Admin.instance
+	})
+
+	afterAll(async () => {
+		await Fixtures.resetAll()
+	})
 
 	describe('/test_token', () => {
 		test('should 401 if Audience is empty', async () => {

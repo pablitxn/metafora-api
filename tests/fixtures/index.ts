@@ -1,20 +1,21 @@
-// @ts-nocheck
 import User from './user'
 
-const Fixtures: any = {
+const Fixtures = {
 	User,
 	createAll: async () => {
 		try {
-			await User.createAll()
+			return await User.createAll()
 		} catch (error) {
+			console.error(error)
 			return console.log('Fixtures error in createAll()')
 		}
 	},
 	resetAll: async () => {
 		try {
-			await User.reset()
+			return await User.reset()
 		} catch (error) {
-			console.log('Fixtures error in resetAll()')
+			console.error(error)
+			return console.log('Fixtures error in resetAll()')
 		}
 	}
 }

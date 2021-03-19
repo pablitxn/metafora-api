@@ -34,8 +34,8 @@ const PostRoute = (app: Router) => {
 
 	route.post('/posts', async (req: Request, res: Response) => {
 		try {
-			const { payload } = requestHelper(req)
-			const data = await PostService.create(payload)
+			const { body } = requestHelper(req)
+			const data = await PostService.create(body)
 			console.log('data', data)
 			res.status(201).json({ data })
 		} catch (err) {
@@ -45,8 +45,8 @@ const PostRoute = (app: Router) => {
 
 	route.put('/posts/:id', async (req: Request, res: Response) => {
 		try {
-			const { id, payload } = requestHelper(req)
-			const data = await PostService.edit(id, payload)
+			const { id, body } = requestHelper(req)
+			const data = await PostService.edit(id, body)
 			res.status(201).json({ data })
 		} catch (err) {
 			res.status(500).send(err)

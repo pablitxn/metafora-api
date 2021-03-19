@@ -1,16 +1,11 @@
 import ModelDB from '../db-model'
-import { IPost } from '../../interfaces/blog/post'
+import { IUser } from '../../interfaces/admin/user'
 import { IDatabase, IMain } from 'pg-promise'
-
-/** TODO:
- * 	- dependency injection
- * 	- handle errors: messages and logger
- */
 
 type Limit = number | null
 type Offset = number | null
 
-class PostDB extends ModelDB {
+class UserDB extends ModelDB {
 	db: IDatabase<any>
 	pgp: IMain
 	constructor(db: IDatabase<any>, pgp: IMain) {
@@ -19,18 +14,18 @@ class PostDB extends ModelDB {
 		this.pgp = pgp
 	}
 
-	async create(post: IPost) {
+	async create(user: IUser) {
 		try {
-			const record = await this.db.func('fn_insert_post', post)
+			const [record] = await this.db.func('fn_insert_user', user)
 			return record
 		} catch (err) {
 			return err
 		}
 	}
 
-	async update(id: number, post: IPost) {
+	async update(id: number, user: IUser) {
 		try {
-			const record = await this.db.func('fn_update_post', { id, ...post })
+			const [record] = await this.db.func('fn_update_user', { id, ...user })
 			return record
 		} catch (err) {
 			return err
@@ -39,7 +34,7 @@ class PostDB extends ModelDB {
 
 	async delete(id: number) {
 		try {
-			const record = await this.db.func('fn_delete_post', id)
+			const [record] = await this.db.func('fn_delete_user', id)
 			return record
 		} catch (err) {
 			return err
@@ -48,7 +43,7 @@ class PostDB extends ModelDB {
 
 	async index(limit: Limit, offset: Offset) {
 		try {
-			const record = await this.db.func('fn_find_post', [null, limit, offset])
+			const [record] = await this.db.func('fn_find_user', [null, limit, offset])
 			return record
 		} catch (err) {
 			return err
@@ -57,7 +52,7 @@ class PostDB extends ModelDB {
 
 	async findById(id: number) {
 		try {
-			const record = await this.db.func('fn_find_post', id)
+			const [record] = await this.db.func('fn_find_user', id)
 			return record
 		} catch (err) {
 			return err
@@ -65,4 +60,4 @@ class PostDB extends ModelDB {
 	}
 }
 
-export default PostDB
+export default UserDB

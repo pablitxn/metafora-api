@@ -30,6 +30,7 @@ const Express = (app: Application) => {
 		err['status'] = 404
 		next(err)
 	})
+
 	app.use((err, req, res, next) => {
 		if (err.name === 'UnauthorizedError') {
 			return res.status(err.status).send({ message: err.message }).end()

@@ -2,7 +2,7 @@ var dbm = global.dbm || require('db-migrate')
 var type = dbm.dataType
 var PromiseDB = require('./util/promise-db')
 
-const tableName = 'user'
+const tableName = 'user_'
 const columnSpec = {
 	id: {
 		type: 'int',
@@ -11,18 +11,17 @@ const columnSpec = {
 		primaryKey: true,
 		autoIncrement: true
 	},
-	fist_name: { type: 'string', notNull: true, unique: false },
-	last_name: { type: 'string', notNull: false, unique: false },
+	given_name: { type: 'string' },
+	family_name: { type: 'string' },
+	name: { type: 'string' },
+	nickname: { type: 'string', notNull: true },
+	brief_description: { type: 'string' },
 	email: { type: 'string', notNull: true, unique: true },
-	username: { type: 'string', notNull: true, unique: true },
-	password: { type: 'string', notNull: true, unique: false },
-	gender: { type: 'string', notNull: false, unique: false },
-	brief_description: { type: 'string', notNull: false, unique: false },
-	description: { type: 'string', notNull: false, unique: false },
-	firm: { type: 'string', notNull: false, unique: false },
-	avatar: { type: 'string', notNull: false, unique: false },
-	is_deleted: { type: 'boolean', notNull: true, unique: false, defaultValue: false },
-	created_at: { type: 'timestamp', notNull: false }
+	firm: { type: 'string' },
+	picture: { type: 'string' },
+	is_deleted: { type: 'boolean', notNull: true, defaultValue: false },
+	updated_at: { type: 'timestamp' },
+	created_at: { type: 'timestamp', notNull: true }
 }
 
 exports.up = PromiseDB.upCreateTable(tableName, columnSpec)

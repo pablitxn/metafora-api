@@ -2,9 +2,9 @@ import promise from 'bluebird' // best promise library today
 import pgPromise from 'pg-promise' // pg-promise core library
 import { Diagnostics } from './diagnostics' // optional diagnostics
 import { IInitOptions, IDatabase, IMain } from 'pg-promise'
-import { IPost } from '../types'
+// import { IPost } from '../types'
 
-type ExtendedProtocol = IDatabase<IPost> & IPost
+type ExtendedProtocol = IDatabase<any> & any
 
 const mockconfig = {
 	driver: 'pg',
@@ -18,7 +18,7 @@ const mockconfig = {
 }
 
 // pg-promise initialization options:
-const initOptions: IInitOptions<IPost> = {
+const initOptions: IInitOptions<any> = {
 	// Using a custom promise library, instead of the default ES6 Promise:
 	promiseLib: promise,
 

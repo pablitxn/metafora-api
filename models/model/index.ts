@@ -1,41 +1,84 @@
+// @ts-nocheck
 // const CustomError = require('../util/CustomError')
 
 const modelsMap = {}
 
+type fieldSpec = {
+	field: string
+	map?: string
+	render: boolean
+	deshydrate?: boolean
+	required?: boolean
+	type?: 'Number' | 'Boolean'
+}
+
 class Model {
-	fieldSpec: any
-	private __constructor: string
-	id: any
-	createdAt: any
-	validate: any
-	render: any
-	constructor(fieldSpec, fields) {
+	//////////////////////////////////////////////////////////////////////////////
+	/**
+	 * TODO:
+	 * understand constructor
+	 * inflate, render. and the rest of the methods
+	 */
+	//////////////////////////////////////////////////////////////////////////////
+	constructor(fieldSpec: fieldSpec[], fields: any) {
 		this.__constructor = this.constructor.name
 		this.isNew = this.isNew.bind(this)
 		this.inflate = this.inflate.bind(this)
 		this.validate = this.validate.bind(this)
 		this.render = this.render.bind(this)
+		this.deshydrate = this.deshydrate.bind(this)
+		this.hydrate = this.hydrate.bind(this)
 
 		this.fieldSpec = fieldSpec
 		fieldSpec.forEach((spec) => {
 			spec.map = spec.map || spec.field
-			spec.render = spec.render || false
-			spec.required = spec.required || false
 		})
 
 		this.inflate(fields)
 	}
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
 
-	// Keep a map of model classes in memory that we can use to
-	// deserialize models using their __constructor property
-	// static register(Model) {
-	// 	modelsMap[Model.name] = Model
-	// }
-
+	//////////////////////////////////////////////////////////////////////////////
+	/**
+	 *
+	 * TODO:
+	 *  in which cases use this method?
+	 * 	is it okay to use the public and static in register()?
+	 */
+	//////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Keep a map of model classes in memory that we can use to
+	 * deserialize models using their __constructor property
+	 * @param Model
+	 * @returns void
+	 */
+	public static register(Model: any): void {
+		modelsMap[Model.name] = Model
+	}
+	/**
+	 * Verify if the instance is a new element within the db
+	 * through its ID property
+	 * @returns boolean
+	 */
 	isNew() {
 		return !this.id
 	}
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
 
+	//////////////////////////////////////////////////////////////////////////////
+	/**
+	 *
+	 * TODO:
+	 *  what does this method do?
+	 */
+	//////////////////////////////////////////////////////////////////////////////
 	inflate(fields) {
 		this.id = fields.id
 		this.createdAt = fields.created_at
@@ -44,100 +87,237 @@ class Model {
 			const newVal = fields[spec.map]
 			this[spec.field] = newVal
 		})
-
 		return this
 	}
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
 
-	static uninflate(record) {
-		record.fieldSpec.forEach((spec) => {
-			record[spec.map] = record[spec.field]
-		})
+	//////////////////////////////////////////////////////////////////////////////
+	/**
+	 * WIP: in the test state to see that this methods will be useful
+	 *
+	 */
+	//////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Serialize from CamelCase to Snake_Case
+	 * @param options - exclude properties
+	 * @returns A model instance with all properties in CamelCase
+	 */
+	deshydrate(options = {}) {
+		let fields = {}
+		options.exclude = options.exclude || []
+
+		if (!this.isNew() && !options.exclude.includes('id')) {
+			fields.id = this.id
+		}
+
+		// filter by deshydrate field and changes it
+		this.fieldSpec
+			.filter((s) => s.deshydrate)
+			.forEach((spec) => {
+				const val = this[spec.field]
+				if (val != undefined && !options.exclude.includes(spec.field)) {
+					if (Array.isArray(val)) {
+						fields[spec.map] = val.map((m) => (m.deshydrate ? m.deshydrate() : m))
+					} else {
+						fields[spec.map] = val.deshydrate ? val.deshydrate() : val
+					}
+				}
+			})
+
+		this.fieldSpec
+			.filter((s) => s.deshydrate === undefined)
+			.forEach((spec) => {
+				const val = this[spec.field]
+				if (val != undefined && !options.exclude.includes(spec.field)) {
+					if (Array.isArray(val)) {
+						fields[spec.map] = val.map((m) => (m.deshydrate ? m.deshydrate() : m))
+					} else {
+						fields[spec.map] = val.deshydrate ? val.deshydrate() : val
+					}
+				}
+			})
+
+		return fields
 	}
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
 
-	// validate(silent = false) {
-	// 	//Check for missing fields that are required
-	// 	let errors = this.fieldSpec
-	// 		.filter((s) => s.required && (this[s.field] === undefined || this[s.field] === ''))
-	// 		.map((s) => ({ field: s.map, message: 'is missing' }))
+	//////////////////////////////////////////////////////////////////////////////
+	/**
+	 * TODO: test and implement
+	 */
+	//////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Serialize Snake_Case to Camel Case
+	 * @param post
+	 */
+	hydrate(fields: any) {
+		// let fields = {}
+		options.exclude = options.exclude || []
 
-	// 	//Check for fields that are invalid types
-	// 	this.fieldSpec
-	// 		.filter(
-	// 			(s) =>
-	// 				!(s.required && this[s.field] === '') &&
-	// 				this[s.field] !== undefined &&
-	// 				this[s.field] !== null &&
-	// 				((s.type && this[s.field].constructor.name !== s.type) ||
-	// 					(s.type === 'Number' && isNaN(this[s.field])) ||
-	// 					(s.type === 'String' && this[s.field] === '' && s.isNotEmptyString !== false))
-	// 		)
-	// 		.map((s) => ({ field: s.map, message: 'is invalid' }))
-	// 		.forEach((e) => errors.push(e))
+		if (!this.isNew() && !options.exclude.includes('id')) {
+			fields.id = this.id
+		}
 
-	// 	if (this.id !== undefined && isNaN(this.id)) {
-	// 		errors.push({ field: 'id', message: 'is invalid' })
-	// 	}
+		this.fieldSpec
+			.filter((s) => s.deshydrate)
+			.forEach((spec) => {
+				const val = this[spec.field]
+				if (val != undefined && !options.exclude.includes(spec.field)) {
+					if (Array.isArray(val)) {
+						fields[spec.map] = val.map((m) => (m.deshydrate ? m.deshydrate() : m))
+					} else {
+						fields[spec.map] = val.deshydrate ? val.deshydrate() : val
+					}
+				}
+			})
+	}
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
 
-	// 	if (!silent && errors.length > 0) throw CustomError.validationError(errors)
+	//////////////////////////////////////////////////////////////////////////////
+	/**
+	 * TODO: test and implement
+	 */
+	//////////////////////////////////////////////////////////////////////////////
+	validate(silent = false) {
+		//Check for missing fields that are required
+		let errors = this.fieldSpec
+			.filter((s) => s.required && (this[s.field] === undefined || this[s.field] === ''))
+			.map((s) => ({ field: s.map, message: 'is missing' }))
 
-	// 	return errors
-	// }
+		//Check for fields that are invalid types
+		this.fieldSpec
+			.filter(
+				(s) =>
+					!(s.required && this[s.field] === '') &&
+					this[s.field] !== undefined &&
+					this[s.field] !== null &&
+					((s.type && this[s.field].constructor.name !== s.type) ||
+						(s.type === 'Number' && isNaN(this[s.field])) ||
+						(s.type === 'String' && this[s.field] === '' && s.isNotEmptyString !== false))
+			)
+			.map((s) => ({ field: s.map, message: 'is invalid' }))
+			.forEach((e) => errors.push(e))
 
-	// async populatePath() {
-	// 	return this
-	// }
+		if (this.id !== undefined && isNaN(this.id)) {
+			errors.push({ field: 'id', message: 'is invalid' })
+		}
 
-	// async populate(...fields) {
-	// 	await Promise.all(fields.map((field) => this.populatePath(field)))
-	// 	return this
-	// }
+		if (!silent && errors.length > 0) throw CustomError.validationError(errors)
 
-	// render(options = {}) {
-	// 	let fields = {}
-	// 	options.exclude = options.exclude || []
+		return errors
+	}
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
 
-	// 	if (!this.isNew() && !options.exclude.includes('id')) {
-	// 		fields.id = this.id
-	// 	}
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Populate path through instances of other objects
+	 * @param field - intance model and field to populate
+	 * @returns Model
+	 */
+	async populatePath() {
+		return this
+	}
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
 
-	// 	this.fieldSpec
-	// 		.filter((s) => s.render)
-	// 		.forEach((spec) => {
-	// 			const val = this[spec.field]
-	// 			if (val != undefined && !options.exclude.includes(spec.field)) {
-	// 				if (Array.isArray(val)) {
-	// 					fields[spec.map] = val.map((m) => (m.render ? m.render() : m))
-	// 				} else {
-	// 					fields[spec.map] = val.render ? val.render() : val
-	// 				}
-	// 			}
-	// 		})
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Populate paths through instances of other objects
+	 * @param fields - Array with intance models and fields to populate
+	 * @returns Model
+	 */
+	async populate(...fields) {
+		await Promise.all(fields.map((field) => this.populatePath(field)))
+		return this
+	}
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
 
-	// 	return fields
-	// }
+	//////////////////////////////////////////////////////////////////////////////
+	/**
+	 * TODO:
+	 * understand that this method does
+	 */
+	//////////////////////////////////////////////////////////////////////////////
+	render(options = {}) {
+		let fields = {}
+		options.exclude = options.exclude || []
 
-	// Recurse through a model and deserialize it using its saved constructor prop
-	// Necessary because serializing obliterates its methods (such as render())
-	// static modelify(record) {
-	// 	// recursively apply to all members of this, depth-first
-	// 	if (record instanceof Object) {
-	// 		if (record instanceof Array) {
-	// 			record.forEach((v, i) => {
-	// 				record[i] = Model.modelify(v)
-	// 			})
-	// 		} else {
-	// 			for (let prop in record) {
-	// 				record[prop] = Model.modelify(record[prop])
-	// 			}
+		if (!this.isNew() && !options.exclude.includes('id')) {
+			fields.id = this.id
+		}
 
-	// 			if (!!record.__constructor) {
-	// 				Model.uninflate(record)
-	// 				record = Reflect.construct(modelsMap[record.__constructor], [record])
-	// 			}
-	// 		}
-	// 	}
-	// 	return record
-	// }
+		this.fieldSpec
+			.filter((s) => s.render)
+			.forEach((spec) => {
+				const val = this[spec.field]
+				if (val != undefined && !options.exclude.includes(spec.field)) {
+					if (Array.isArray(val)) {
+						fields[spec.map] = val.map((m) => (m.render ? m.render() : m))
+					} else {
+						fields[spec.map] = val.render ? val.render() : val
+					}
+				}
+			})
+
+		return fields
+	}
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+
+	//////////////////////////////////////////////////////////////////////////////
+	/**
+	 * TODO:
+	 * understand that this method does
+	 */
+	//////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Recurse through a model and deserialize it using its saved constructor prop
+	 * Necessary because serializing obliterates its methods (such as render())
+	 * @param record - db record
+	 * @returns record
+	 */
+	static modelify(record) {
+		// recursively apply to all members of this, depth-first
+		if (record instanceof Object) {
+			if (record instanceof Array) {
+				record.forEach((v, i) => {
+					record[i] = Model.modelify(v)
+				})
+			} else {
+				for (let prop in record) {
+					record[prop] = Model.modelify(record[prop])
+				}
+
+				if (!!record.__constructor) {
+					Model.uninflate(record)
+					record = Reflect.construct(modelsMap[record.__constructor], [record])
+				}
+			}
+		}
+		return record
+	}
 }
 
 export default Model

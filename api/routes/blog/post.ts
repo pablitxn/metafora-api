@@ -36,9 +36,9 @@ const PostRoute = (app: Router) => {
 		try {
 			const { body } = requestHelper(req)
 			const data = await PostService.create(body)
-			console.log('data', data)
 			res.status(201).json({ data })
 		} catch (err) {
+			res.status(400).json({ error: err })
 			throw err
 		}
 	})

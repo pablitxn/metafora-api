@@ -16,7 +16,7 @@ class PostService {
 	static async create(payload: any) {
 		try {
 			const post = PostModel.deshydrate(payload)
-			const [record] = await PostModel.create(post)
+			const record = await PostModel.create(post)
 			const response = PostModel.hydrate(record)
 			return response
 		} catch (err) {

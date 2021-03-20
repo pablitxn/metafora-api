@@ -65,19 +65,19 @@ class PostModel {
 
 	static hydrate(record: any) {
 		const post = {
-			id: record.id,
-			title: record.title,
-			subTitle: record.sub_title,
-			author: record.author,
-			srcBackground: record.src_background,
-			altBackground: record.alt_background,
-			imgAuthor: record.img_author,
-			briefHeader: record.brief_header,
-			article: record.article,
-			isDeleted: record.is_deleted,
-			isDraft: record.is_draft,
-			updatedAt: record.updated_at,
-			createdAt: record.created_at
+			id: record[0].id,
+			title: record[0].title,
+			subTitle: record[0].sub_title,
+			author: record[0].author,
+			srcBackground: record[0].src_background,
+			altBackground: record[0].alt_background,
+			imgAuthor: record[0].img_author,
+			briefHeader: record[0].brief_header,
+			article: record[0].article,
+			isDeleted: record[0].is_deleted,
+			isDraft: record[0].is_draft,
+			updatedAt: record[0].updated_at,
+			createdAt: record[0].created_at
 		}
 		return post
 	}

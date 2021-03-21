@@ -4,9 +4,7 @@ import Fixtures from '../../fixtures'
 import expressApp from '../../../app'
 import supertest from 'supertest'
 import DBMigrate from 'db-migrate'
-import { config } from 'dotenv'
-
-config()
+import configs from '../../../loaders/configs'
 
 describe('Blog / Posts', () => {
 	//////////////////////////////////////////////////////////////////////////////
@@ -17,7 +15,8 @@ describe('Blog / Posts', () => {
 	let dbmigrate
 
 	beforeAll(async () => {
-		if (process.env.RESET_DATABASE) {
+		if (configs.test.resetDatabase) {
+			console.log(configs.test)
 			dbmigrate = await DBMigrate.getInstance(true, { env: 'test' })
 			await dbmigrate.reset()
 			await dbmigrate.up()
@@ -88,7 +87,7 @@ describe('Blog / Posts', () => {
 
 	describe('create', () => {
 		const newPost = {
-			title: 'Orci dis ultrices magna tortor ac faucibus tempus rhoncaus',
+			title: 'Orci dis ultrices magna tortor ac faucibus tempus rhoncausa',
 			subTitle: 'Taciti primis fermentum malesueada suspendisse lectus hac',
 			author: 'User test',
 			srcBackground: 'url//ima',

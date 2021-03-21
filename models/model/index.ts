@@ -156,26 +156,12 @@ class Model {
 	 * Serialize Snake_Case to Camel Case
 	 * @param post
 	 */
-	hydrate(fields: any) {
-		// let fields = {}
-		options.exclude = options.exclude || []
-
-		if (!this.isNew() && !options.exclude.includes('id')) {
-			fields.id = this.id
-		}
-
-		this.fieldSpec
-			.filter((s) => s.deshydrate)
-			.forEach((spec) => {
-				const val = this[spec.field]
-				if (val != undefined && !options.exclude.includes(spec.field)) {
-					if (Array.isArray(val)) {
-						fields[spec.map] = val.map((m) => (m.deshydrate ? m.deshydrate() : m))
-					} else {
-						fields[spec.map] = val.deshydrate ? val.deshydrate() : val
-					}
-				}
-			})
+	hydrate() {
+		const renderFields = this.render()
+		const fieldsFormatted = this.inflate(renderFields)
+		delete fieldsFormatted.__constructor
+		delete fieldsFormatted.fieldSpec
+		return fieldsFormatted
 	}
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////

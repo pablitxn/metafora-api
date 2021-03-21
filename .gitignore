@@ -12,3 +12,5 @@ yarn-error.log*
 .env
 build
 yarn.lock
+
+database.json

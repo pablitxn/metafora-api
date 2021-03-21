@@ -1,7 +1,7 @@
 import Fixture from './fixture-model'
 
 const Post1 = {
-	title: 'Fermentum malesueada suspendisse lectus hac',
+	title: 'Fermentum malesueada suspendisse leectus hac',
 	sub_title: 'Taciti primis faucibus tempus rhoncus orci dis ultrices magna tortor ac',
 	author: 'User test',
 	src_background: 'url//ima',

@@ -1,24 +1,12 @@
 // @ts-nocheck
 import { create as _create } from 'sql-fixtures'
-import { config } from 'dotenv'
+import configs from '../../loaders/configs'
 import { IDatabase, IMain } from 'pg-promise'
 import pgPromise from 'pg-promise'
 
-const mockconfig = {
-	driver: 'pg',
-	user: 'metafora',
-	password: 'metafora',
-	database: 'metafora_test',
-	ssl: false,
-	host: '0.0.0.0',
-	schema: 'public',
-	port: 5432
-}
-
-config()
 type ExtendedProtocol = IDatabase<any> & any
 const pgp: IMain = pgPromise()
-const db: ExtendedProtocol = pgp(mockconfig)
+const db: ExtendedProtocol = pgp(configs.db)
 
 class Fixture {
 	constructor(table, spec) {
@@ -33,12 +21,12 @@ class Fixture {
 			fixtureSpec[this.table] = this.spec
 
 			const dbConfig = {
-				client: 'pg',
+				client: configs.db.driver,
 				connection: {
-					user: 'metafora',
-					password: 'metafora',
-					database: 'metafora_test',
-					port: 5432
+					user: configs.db.user,
+					password: configs.db.password,
+					database: configs.db.database,
+					port: configs.db.port
 				}
 			}
 

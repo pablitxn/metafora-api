@@ -26,7 +26,7 @@ class Post extends Model {
 	 * @returns
 	 */
 	deshydrate(options = {}) {
-		let fields = super.deshydrate(options)
+		const fields = super.deshydrate(options)
 		return fields
 	}
 
@@ -35,8 +35,8 @@ class Post extends Model {
 	 * @param fields
 	 * @returns
 	 */
-	hydrate(options = {}) {
-		let fields = super.hydrate(options)
+	hydrate() {
+		const fields = super.hydrate()
 		return fields
 	}
 
@@ -71,9 +71,7 @@ class Post extends Model {
 		try {
 			const database = new PostDB(db, pgp)
 			const records = await database.index(limit, offset)
-			const posts = await records.map((record) => new Post(record))
-			const res = await posts.map((r) => r.deshydrate())
-			console.log(res)
+			const posts = await records.map((record) => new Post(record).hydrate())
 			return posts
 		} catch (err) {
 			return err
@@ -138,7 +136,7 @@ class Post extends Model {
 	//  *  and move the parent model
 	//  */
 	// static hydrate(record: any) {
-	// 	const post = {
+	// 	const post {
 	// 		id: record[0].id,
 	// 		title: record[0].title,
 	// 		subTitle: record[0].sub_title,

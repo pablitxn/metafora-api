@@ -6,12 +6,12 @@
   "scripts": {
     "build": "tsc",
     "npm:build": "npm run build",
-    "dev": "nodemon",
+    "dev": "NODE_ENV=development nodemon",
     "start": "node build/app.js",
     "inspect": "nodemon --inspect src/app.ts",
-    "test": "NODE_ENV=TEST jest --verbose ",
-    "package-sql": "node scripts/package-sql.js",
-    "deploy-sql": "node scripts/deploy-sql.js"
+    "test": "NODE_ENV=test jest --verbose ",
+    "package-sql:dev": "NODE_ENV=development node scripts/package-sql.js",
+    "deploy-sql:dev": "NODE_ENV=development node scripts/deploy-sql.js"
   },
   "repository": {
     "type": "git",

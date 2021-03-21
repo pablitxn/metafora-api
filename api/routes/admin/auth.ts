@@ -2,21 +2,19 @@ import { Router, Request, Response } from 'express'
 import AuthService from '../../../services/admin/auth'
 import { checkJwt } from '../../middlewares/authz'
 import { checkPermissions } from '../../middlewares/permissions'
-import { auth, requiresAuth } from 'express-openid-connect'
+import { auth, ConfigParams, requiresAuth } from 'express-openid-connect'
 import { requestHelper } from '../../../utils'
-import dotenv from 'dotenv'
-dotenv.config()
+import configs from '../../../loaders/configs'
 import axios, { AxiosRequestConfig } from 'axios'
 
 const route = Router()
 
-const config = {
-	authRequired: false,
-	auth0Logout: true,
-	issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
-	baseURL: process.env.BASE_URL,
-	clientID: process.env.AUTH0_CLIENT_ID,
-	secret: process.env.SESSION_SECRET
+const auth0Configs: ConfigParams = {
+	issuerBaseURL: 'https://YOUR_APPLICATION_ROOT_URL',
+	baseURL: 'https://YOUR_APPLICATION_ROOT_URL',
+	clientID: 'YOUR_CLIENT_ID',
+	secret: 'LONG_RANDOM_VALUE',
+	clientSecret: 'YOUR_CLIENT_SECRET'
 }
 
 const Auth = (app: Router) => {
@@ -32,7 +30,7 @@ const Auth = (app: Router) => {
 		}
 	})
 
-	app.use(auth(config))
+	app.use(auth(auth0Configs))
 	app.use(requiresAuth())
 	// app.use(checkPermissions)
 

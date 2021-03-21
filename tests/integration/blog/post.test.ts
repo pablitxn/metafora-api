@@ -15,19 +15,22 @@ describe('Blog / Posts', () => {
 	let dbmigrate
 
 	beforeAll(async () => {
-		if (configs.test.resetDatabase) {
-			console.log(configs.test)
-			dbmigrate = await DBMigrate.getInstance(true, { env: 'test' })
-			await dbmigrate.reset()
-			await dbmigrate.up()
+		try {
+			if (configs.test.resetDatabase) {
+				dbmigrate = await DBMigrate.getInstance(true, { env: 'test' })
+				await dbmigrate.reset()
+				await dbmigrate.up()
+			}
+
+			const { app, server: _server } = await expressApp
+			api = await supertest(app)
+			server = _server
+
+			await Fixtures.resetAll()
+			await Fixtures.createAll()
+		} catch (err) {
+			console.error(err)
 		}
-
-		const { app, server: _server } = await expressApp
-		api = await supertest(app)
-		server = _server
-
-		await Fixtures.resetAll()
-		await Fixtures.createAll()
 	})
 
 	afterAll(async () => {

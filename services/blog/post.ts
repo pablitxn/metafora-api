@@ -15,9 +15,7 @@ class PostService {
 
 	static async create(payload: any) {
 		try {
-			const post = PostModel.deshydrate(payload)
-			const record = await PostModel.create(post)
-			const response = PostModel.hydrate(record)
+			const response = await PostModel.create(payload)
 			return response
 		} catch (err) {
 			return err
@@ -26,19 +24,16 @@ class PostService {
 
 	static async findById(id: number) {
 		try {
-			const [record] = await PostModel.findById(id)
-			const response = PostModel.hydrate(record)
+			const response = await PostModel.findById(id)
 			return response
 		} catch (err) {
 			return err
 		}
 	}
 
-	static async edit(id: number, payload: any) {
+	static async edit(id: number, post: any) {
 		try {
-			const post = PostModel.deshydrate(payload)
-			const [record] = await PostModel.edit(id, post)
-			const response = PostModel.hydrate(record)
+			const response = await PostModel.edit(id, post)
 			return response
 		} catch (err) {
 			return err
@@ -47,8 +42,7 @@ class PostService {
 
 	static async delete(id: number) {
 		try {
-			const [record] = await PostModel.delete(id)
-			const response = PostModel.hydrate(record)
+			const response = await PostModel.delete(id)
 			return response
 		} catch (err) {
 			return err

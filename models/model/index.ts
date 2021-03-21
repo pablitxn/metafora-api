@@ -13,6 +13,7 @@ type fieldSpec = {
 }
 
 class Model {
+	fieldSpec: fieldSpec[]
 	//////////////////////////////////////////////////////////////////////////////
 	/**
 	 * TODO:
@@ -26,7 +27,6 @@ class Model {
 		this.inflate = this.inflate.bind(this)
 		this.validate = this.validate.bind(this)
 		this.render = this.render.bind(this)
-		this.deshydrate = this.deshydrate.bind(this)
 		this.hydrate = this.hydrate.bind(this)
 
 		this.fieldSpec = fieldSpec
@@ -105,42 +105,31 @@ class Model {
 	 * @param options - exclude properties
 	 * @returns A model instance with all properties in CamelCase
 	 */
-	deshydrate(options = {}) {
-		let fields = {}
-		options.exclude = options.exclude || []
+	public static deshydrate(fields: any, fieldSpec: fieldSpec[]) {
+		let fieldsDeshydrated: any
+		const isNew = () => fields.id === undefined
 
-		if (!this.isNew() && !options.exclude.includes('id')) {
-			fields.id = this.id
+		fieldSpec.forEach((spec) => {
+			if (spec.map) {
+				fieldsDeshydrated = {
+					...fieldsDeshydrated,
+					[spec.map]: fields[spec.field]
+				}
+			} else {
+				fieldsDeshydrated = {
+					...fieldsDeshydrated,
+					[spec.field]: fields[spec.field]
+				}
+			}
+		})
+
+		if (isNew) {
+			delete fieldsDeshydrated.is_deleted
+			delete fieldsDeshydrated.updated_at
+			delete fieldsDeshydrated.created_at
+			delete fieldsDeshydrated.id
 		}
-
-		// filter by deshydrate field and changes it
-		this.fieldSpec
-			.filter((s) => s.deshydrate)
-			.forEach((spec) => {
-				const val = this[spec.field]
-				if (val != undefined && !options.exclude.includes(spec.field)) {
-					if (Array.isArray(val)) {
-						fields[spec.map] = val.map((m) => (m.deshydrate ? m.deshydrate() : m))
-					} else {
-						fields[spec.map] = val.deshydrate ? val.deshydrate() : val
-					}
-				}
-			})
-
-		this.fieldSpec
-			.filter((s) => s.deshydrate === undefined)
-			.forEach((spec) => {
-				const val = this[spec.field]
-				if (val != undefined && !options.exclude.includes(spec.field)) {
-					if (Array.isArray(val)) {
-						fields[spec.map] = val.map((m) => (m.deshydrate ? m.deshydrate() : m))
-					} else {
-						fields[spec.map] = val.deshydrate ? val.deshydrate() : val
-					}
-				}
-			})
-
-		return fields
+		return fieldsDeshydrated
 	}
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////

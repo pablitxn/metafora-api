@@ -1,5 +1,5 @@
 import { db, pgp } from '../../loaders/pg-promise'
-import PostDB from '../../data/blog/post'
+import PostDB, { IPostDB } from '../../data/blog/post'
 import { IPost, fieldSpec } from '../../interfaces/blog/post'
 import { Limit, Offset } from '../../interfaces'
 import Model from '../model'
@@ -23,11 +23,11 @@ class Post extends Model {
 	/** TODO: describe what is it
 	 *	when will i need inflate some property ?
 	 * @param fields
-	 * @returns
+	 * @returns fields in db format
 	 */
-	deshydrate(options = {}) {
-		const fields = super.deshydrate(options)
-		return fields
+	static deshydrate(fields: IPost): IPostDB {
+		const fieldsDeshydrated: IPostDB = super.deshydrate(fields, fieldSpec)
+		return fieldsDeshydrated
 	}
 
 	/** TODO: describe what is it
@@ -56,7 +56,7 @@ class Post extends Model {
 	 *  what can this receive?
 	 * @returns void
 	 */
-	validate(el: any) {
+	validate(el: any): any {
 		// let errors = super.validate(true)
 		// if(someValidation) errors.push({ field, message })
 		// if (errors.length > 0) throw CustomError.validationError(errors)
@@ -97,8 +97,10 @@ class Post extends Model {
 	static async create(post: IPost) {
 		try {
 			const database = new PostDB(db, pgp)
-			const record = await database.create(post)
-			return record
+			const postFormatted = Post.deshydrate(post)
+			const record = await database.create(postFormatted)
+			const response = new Post(record).hydrate()
+			return response
 		} catch (err) {
 			return err
 		}
@@ -131,46 +133,6 @@ class Post extends Model {
 			return err
 		}
 	}
-	// /**
-	//  *  mock methods to improve
-	//  *  and move the parent model
-	//  */
-	// static hydrate(record: any) {
-	// 	const post {
-	// 		id: record[0].id,
-	// 		title: record[0].title,
-	// 		subTitle: record[0].sub_title,
-	// 		author: record[0].author,
-	// 		srcBackground: record[0].src_background,
-	// 		altBackground: record[0].alt_background,
-	// 		imgAuthor: record[0].img_author,
-	// 		briefHeader: record[0].brief_header,
-	// 		article: record[0].article,
-	// 		isDeleted: record[0].is_deleted,
-	// 		isDraft: record[0].is_draft,
-	// 		updatedAt: record[0].updated_at,
-	// 		createdAt: record[0].created_at
-	// 	}
-	// 	return post
-	// }
-	// /**
-	//  *  mock methods to improve
-	//  *  and move the parent model
-	//  */
-	// static deshydrate(payload: any) {
-	// 	const post = {
-	// 		title: payload.title,
-	// 		sub_title: payload.subTitle ?? null,
-	// 		author: payload.author ?? null,
-	// 		src_background: payload.srcBackground ?? null,
-	// 		alt_background: payload.altBackground ?? null,
-	// 		img_author: payload.imgAuthor ?? null,
-	// 		brief_header: payload.briefHeader ?? null,
-	// 		article: payload.article,
-	// 		is_draft: payload.isDraft ?? null
-	// 	}
-	// return postA
-	// }
 }
 
 export default Post

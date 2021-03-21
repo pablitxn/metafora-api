@@ -1,14 +1,23 @@
 import ModelDB from '../db-model'
 import { IPost } from '../../interfaces/blog/post'
+import { Limit, Offset } from '../../interfaces'
 import { IDatabase, IMain } from 'pg-promise'
 
-/** TODO:
- * 	- dependency injection
- * 	- handle errors: messages and logger
- */
-
-type Limit = number | null
-type Offset = number | null
+export interface IPostDB {
+	id?: number
+	title: string
+	subTitle?: string
+	author?: string
+	src_background?: string
+	alt_background?: string
+	img_author?: string
+	brief_header?: string
+	article: string
+	is_deleted?: boolean
+	is_draft?: boolean
+	updated_at?: Date
+	created_at?: Date
+}
 
 class PostDB extends ModelDB {
 	db: IDatabase<any>
@@ -19,10 +28,10 @@ class PostDB extends ModelDB {
 		this.pgp = pgp
 	}
 
-	async create(post: IPost) {
+	async create(post: IPostDB): Promise<IPostDB> {
 		try {
 			const record = await this.db.func('fn_insert_post', post)
-			return record
+			return record[0]
 		} catch (err) {
 			return err
 		}

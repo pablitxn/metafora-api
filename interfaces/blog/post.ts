@@ -6,7 +6,7 @@ export interface IPost {
 	srcBackground?: string
 	altBackground?: string
 	imgAuthor?: string
-	brief_header?: string
+	briefHeader?: string
 	article: string
 	isDeleted?: boolean
 	isDraft?: boolean

@@ -30,8 +30,9 @@ if (envFound.error) {
 
 export default {
 	// Configs
-	port: envFound.PORT,
+	port: parseInt(envFound.PORT),
 	baseURL: envFound.BASE_URL,
+	env: envFound.NODE_ENV,
 	// Auth0
 	authz: {
 		issuerBaseURL: envFound.AUTH0_ISSUER_BASE_URL,

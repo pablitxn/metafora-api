@@ -1,9 +1,11 @@
-// Express
 import { Router, Request, Response } from 'express'
-// Services
 import PostService from '../../../services/blog/post'
-// Utils
 import { requestHelper } from '../../../utils'
+import { auth, requiresAuth } from 'express-openid-connect'
+import { checkPermissions } from '../../middlewares/permissions'
+import configs from '../../../loaders/configs'
+import { checkJwt } from '../../middlewares/authz'
+import jwt from 'jsonwebtoken'
 
 // Definitions
 const route = Router()
@@ -32,7 +34,25 @@ const PostRoute = (app: Router) => {
 		}
 	})
 
+	app.use(auth(configs.authz))
+	app.use(requiresAuth())
+	// app.use(checkJwt)
+	// app.use(checkPermissions)
+
 	route.post('/posts', async (req: Request, res: Response) => {
+		// const token = req.get('Authorization')
+		// console.log('token', token)
+		const authHeader = req.headers['authorization']
+		const bearerToken = authHeader.split(' ')
+		const token = bearerToken[1]
+		console.log('token', token)
+		jwt.verify(token, configs.authz.secret, (err, payload) => {
+			if (err) {
+				const message = err.name === 'JsonWebTokenError' ? 'Unauthorized' : err.message
+				return console.log(message)
+			}
+			console.log('payload', payload)
+		})
 		try {
 			const { body } = requestHelper(req)
 			const data = await PostService.create(body)

@@ -9,14 +9,6 @@ import axios, { AxiosRequestConfig } from 'axios'
 
 const route = Router()
 
-const auth0Configs: ConfigParams = {
-	issuerBaseURL: 'https://YOUR_APPLICATION_ROOT_URL',
-	baseURL: 'https://YOUR_APPLICATION_ROOT_URL',
-	clientID: 'YOUR_CLIENT_ID',
-	secret: 'LONG_RANDOM_VALUE',
-	clientSecret: 'YOUR_CLIENT_SECRET'
-}
-
 const Auth = (app: Router) => {
 	app.use('/admin', route)
 
@@ -30,9 +22,9 @@ const Auth = (app: Router) => {
 		}
 	})
 
-	app.use(auth(auth0Configs))
+	app.use(auth(configs.authz))
 	app.use(requiresAuth())
-	// app.use(checkPermissions)
+	app.use(checkPermissions)
 
 	route.get('/sync-profile', async (req: any, res: Response) => {
 		try {

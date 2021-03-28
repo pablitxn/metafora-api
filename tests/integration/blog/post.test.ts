@@ -5,6 +5,8 @@ import expressApp from '../../../app'
 import supertest from 'supertest'
 import DBMigrate from 'db-migrate'
 import configs from '../../../loaders/configs'
+import { IPost } from 'interfaces/blog/post'
+import axios, { AxiosRequestConfig } from 'axios'
 
 describe('Blog / Posts', () => {
 	//////////////////////////////////////////////////////////////////////////////
@@ -102,11 +104,54 @@ describe('Blog / Posts', () => {
 			isDraft: false
 		}
 
+		const newPost2 = {
+			title: 'Orci dis aultrices magna tortor ac faucibus tempus rhoncausa',
+			subTitle: 'Taciti primis fermentum malesueada suspendisse lectus hac',
+			author: 'User test',
+			srcBackground: 'url//ima',
+			altBackground: 'alt-text',
+			imgAuthor: 'Ph / Ilustrator',
+			briefHeader: 'Ridiculus ornare cras integer',
+			article:
+				'Lorem ipsum dolor sit amet consectetur adipiscing elit, venenatis curae cras lacinia sodales fringilla massa, cubilia mi congue vestibulum arcu ligula.',
+			isDraft: false
+		}
+
+		const createPost = async (newPost: IPost, authToken: string): Promise<any> => {
+			console.log('create - ', authToken)
+			const postCreated = await api
+				.post('/api/blog/posts')
+				.set('Authorization', authToken)
+				.send(newPost)
+			return postCreated
+		}
+
+		const tokenOptions: AxiosRequestConfig = {
+			method: 'POST',
+			url: configs.authz.issuerBaseURL,
+			headers: { 'content-type': 'application/json' },
+			data: {
+				client_id: configs.authz.clientID,
+				client_secret: configs.authz.clientSecret,
+				audience: configs.audience,
+				grant_type: configs.grantType
+			}
+		}
+
 		test('should 401 without authorization', async () => {
-			const response = await api.post('/api/blog/posts').send(newPost)
-			expect(response.statusCode).toBe(201)
-			expect(response.type).toBe('application/json')
-			expect(response.body.data.title).toEqual(newPost.title)
+			const token = ''
+			const res = await createPost(newPost, token)
+			expect(res.statusCode).toBe(401)
+			expect(res.type).toBe('application/json')
+		})
+
+		test('should 201 and return Post created', async () => {
+			const { data } = await axios(tokenOptions)
+			console.log('token', data)
+			const res = await createPost(newPost2, data)
+			expect(res.statusCode).toBe(201)
+			expect(res.type).toBe('application/json')
+			expect(res.body.data.title).toEqual(newPost.title)
 		})
 	})
 

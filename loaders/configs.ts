@@ -39,9 +39,11 @@ export default {
 		baseURL: envFound.BASE_URL,
 		clientID: envFound.AUTH0_CLIENT_ID,
 		secret: envFound.JWT_SECRET,
-		grantType: envFound.GRANT_TYPE,
 		clientSecret: envFound.CLIENT_SECRET
 	},
+	audience: envFound.AUDIENCE,
+	grantType: envFound.GRANT_TYPE,
+	authzTokenUrl: envFound.AUTH0_TOKEN_URL,
 	// Logs dev
 	logs: {
 		level: envFound.LOG_LEVEL || 'silly'
